@@ -7,7 +7,7 @@ exports.mychat = function (db,io) {
         var clientNo = 0;
 
         io.on('connection', function (socket) {
-            socket.on('loginE', function (userName, password) {
+            socket.on('login', function (userName, password) {
                 usersD.find().sort({_id: 1}).toArray(function (err, res) {
                     if (res.length == 0) {
                         socket.emit("alert", "No entries in the database");
@@ -26,34 +26,34 @@ exports.mychat = function (db,io) {
                 });
             });
 
-            socket.on("logoutE", function (userName) {
+            socket.on("logout", function (userName) {
                 var i = connectedUsers.findIndex(x => x.userName == userName
                 )
                 ;
                 if (i != -1) {
                     connectedUsers.splice(i, 1);
                 }
-                io.emit("all_users", connectedUsers);
+                io.emit("online users", connectedUsers);
                 socket.emit("alert",userName + " has been logged out!!!");
             });
 
 
-            socket.on("uname", function () {
+            socket.on("client name", function () {
                 var userData = {
                     userName: uName,
                     sockId: socket.id
                 };
                 connectedUsers[clientNo++] = userData;
-                socket.emit('send_name', uName);
+                socket.emit('send client name', uName);
             });
 
-            socket.on('msg_allE', function (data, userName) {
+            socket.on('msg to all', function (data, userName) {
 
-                io.emit('msg_all', data, userName);
+                io.emit('msg to all', data, userName);
             });
 
-            socket.on("update", function () {
-                io.emit("all_users", connectedUsers);
+            socket.on("refresh online users", function () {
+                io.emit("online users", connectedUsers);
             });
 
 
@@ -73,7 +73,7 @@ exports.mychat = function (db,io) {
                     message: msg,
                     time: date.getFullYear() + ":" + (date.getMonth() + 1) + ":" + date.getDate() + ":" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
                 };
-                socket.broadcast.to(recieverId).emit("get_message", recieverId, senderId, sender, msg);
+                socket.broadcast.to(recieverId).emit("show msg", recieverId, senderId, sender, msg);
 
                 chatD.update({to: reciever, from: sender}, {$addToSet: {chatMessages: doc}});
                 chatD.update({to: sender, from: reciever}, {$addToSet: {chatMessages: doc}});
