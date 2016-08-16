@@ -63,7 +63,6 @@ exports.mychat = function (db,io) {
                     if (err) throw err;
                     else {
                         chatHistory = res[0].chatMessages;
-                        //socket.emit("send socket id", socketIdR, socketIdS, reciever, chatHistory);
                     }
                 });
                 socket.broadcast.to(recieverId).emit("get message", senderId, recieverId, sender, reciever, chatHistory);
